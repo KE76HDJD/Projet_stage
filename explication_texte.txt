@@ -1,0 +1,678 @@
+Modélisation des Courbes
+
+Intensité-Durée-Fréquence (IDF)
+Station pluviométrique de Kara — Nord Togo
+Période des données : 1980 – 2014 (35 années)
+Projet de fin d'année — Licence 3 IA & Big Data
+Juin 2025
+
+01 Contexte et enjeux du projet
+
+1.1 Qu'est-ce que l'hydrologie ?
+L'hydrologie est la science qui étudie l'eau dans la nature : comment elle tombe sous forme de pluie,
+comment elle s'écoule à la surface du sol, comment elle s'infiltre et s'évapore. Notre projet se positionne
+au tout début du cycle hydrologique : nous étudions la pluie elle-même, comment elle tombe sur la ville de
+Kara, à quelle intensité et sur quelle durée.
+
+1.2 Pourquoi les courbes IDF sont-elles importantes ?
+Les courbes Intensité-Durée-Fréquence (IDF) sont un outil fondamental de l'ingénierie hydraulique. Elles
+répondent à une question centrale : pour une durée de pluie donnée (15 min, 1h, 6h...), quelle intensité
+maximale peut-on observer une fois tous les N ans ?
+Domaine d'application
+
+Exemple concret pour Kara
+
+Assainissement urbain
+
+Dimensionner les caniveaux et dalots pour éviter les débordements
+
+Infrastructure routière
+
+Calculer la capacité d'évacuation des eaux sur les routes nationales
+
+Prévention inondations
+
+Identifier les zones à risque lors d'une pluie de période de retour 50 ans
+
+Planification urbaine
+
+Guider les décisions d'aménagement et de construction
+
+Gestion des barrages
+
+Dimensionner les déversoirs de sécurité des ouvrages hydrauliques
+
+1.3 La notion de période de retour
+La période de retour est la notion centrale des courbes IDF. Une pluie de période de retour 10 ans est un
+événement si intense qu'il ne se produit en moyenne qu'une fois tous les 10 ans. Cela ne signifie pas qu'il
+est impossible qu'il se produise deux années consécutives — il s'agit d'une probabilité statistique.
+Période de retour
+
+Probabilité de
+dépassement par an
+
+Utilisation typique
+
+2 ans
+
+50 %
+
+Drainage courant, voiries secondaires
+
+5 ans
+
+20 %
+
+Réseaux d'assainissement urbains
+
+10 ans
+
+10 %
+
+Canaux principaux, ouvrages urbains importants
+
+20 ans
+
+5%
+
+Ponts, routes nationales, zones habitées
+
+50 ans
+
+2%
+
+Ouvrages structurants, zones à forts enjeux
+
+100 ans
+
+1%
+
+Barrages, infrastructures critiques, plans ORSEC
+
+02 Données disponibles — Analyse détaillée
+
+2.1 Vue d'ensemble des deux jeux de données
+Caractéristique
+
+Pluviomètre
+
+Pluviographe
+
+Instrument
+
+Seau gradué relevé manuellement
+
+Appareil automatique continu
+
+Période
+
+1980 – 2014 (35 ans)
+
+2004 – 2014 (11 ans)
+
+Fréquence
+
+Journalière (1 valeur/jour)
+
+Par événement (matin/soir)
+
+Mois couverts
+
+Tous les 12 mois
+
+Juin à Octobre seulement
+
+Ce qu'il mesure
+
+Hauteur totale de pluie (mm)
+
+Hauteur + Durée de chaque pluie
+
+Ce qu'il ne donne pas
+
+Intensité, durée, profil de la pluie
+
+Données avant 2004
+
+Nombre d'entrées
+
+10 619 jours-mois enregistrés
+
+1 139 événements pluvieux
+
+Valeurs de pluie (> 0)
+
+3 766 jours avec pluie
+
+1 139 événements
+
+Qualité des données
+
+Complètes, aucune valeur manquante
+
+Légère baisse après 2011
+
+Point clé : Le pluviomètre et le pluviographe mesurent le même phénomène physique (la pluie tombant sur Kara),
+mais avec un niveau de détail différent. Le pluviomètre donne une "photo floue" (combien il a plu en 24h), tandis que
+le pluviographe donne une "vidéo HD" (comment la pluie a évolué heure par heure). Sur la période commune
+2004–2014, les deux sources se complètent parfaitement.
+
+2.2 Analyse du Pluviomètre (1980–2014)
+Le fichier KARA_PLUIE_JOURNALIERE.xls contient 35 blocs annuels empilés, un par année. Chaque
+bloc présente les hauteurs journalières en millimètres, organisées en lignes (jours 1 à 31) et colonnes
+(mois de janvier à décembre). Le symbole "." dans les anciennes années signifie zéro (pas de pluie). Les
+données sont complètes et sans aucune valeur manquante.
+
+Moyenne annuelle
+Période
+
+Jours de pluie
+
+35 ans
+
+3 766
+
+1980 – 2014
+
+sur 10 619 jours
+
+1 272
+mm
+par an
+
+Année la plus
+sèche
+
+960 mm
+(1983)
+
+Année la plus
+humide
+
+1 760
+mm
+(1991)
+
+Max journalier
+
+142,1
+mm
+en une journée
+
+Figure 1 — Totaux annuels de précipitations à Kara (1980–2014). Les barres bleues indiquent les années au-dessus de la
+moyenne (1 272 mm), les barres oranges en-dessous. La variabilité inter-annuelle est notable.
+
+Figure 2 — À gauche : saisonnalité des pluies à Kara. La saison des pluies (vert) concentre l'essentiel des précipitations
+entre juin et octobre. À droite : distribution des hauteurs journalières — 42% des jours de pluie ont moins de 5 mm, seuls
+0,4% dépassent 75 mm (événements extrêmes essentiels pour les courbes IDF).
+
+2.3 Analyse du Pluviographe (2004–2014)
+Le fichier INTENSITES_DE_PLUIE_-KARA.xlsx contient 11 feuilles, une par année. Chaque feuille
+présente 5 blocs mensuels côte à côte (juin, juillet, août, septembre, octobre). Pour chaque jour, deux
+événements peuvent être enregistrés : un de "matin au soir" et un de "soir au lendemain". Pour chaque
+événement, deux informations sont fournies : la hauteur en mm et la durée en minutes.
+
+Événements
+totaux
+
+1 139
+2004 – 2014
+
+Intensité maximale
+
+Mois couverts
+
+5
+mois/an
+
+Hauteur maximale
+
+163 mm
+en un événement
+
+juin à octobre
+
+570
+mm/h
+événement
+extrême
+
+Durée médiane
+
+Durée maximale
+
+54 min
+
+624 min
+
+par événement
+
+10h 24min
+
+Figure 3 — À gauche : répartition des 1 139 événements par mois. Septembre concentre le plus d'événements (278), juin le
+moins (188). À droite : distribution des durées — 28% des événements durent moins de 18 minutes (averses violentes et
+courtes), 75% durent moins de 2 heures.
+
+Structure détaillée d'un événement pluviographique
+Champ
+
+Valeur exemple
+
+Signification
+
+Année / Mois / Jour
+
+2004 / Juin / 21
+
+Date de l'événement
+
+Période
+
+soir au lendemain
+
+Pluie tombée dans la nuit
+
+Hauteur (mm)
+
+42,2 mm
+
+Volume total de pluie collecté
+
+Durée (min)
+
+72 minutes
+
+Durée de l'événement pluvieux
+
+Intensité calculée (mm/h)
+
+35,2 mm/h
+
+Hauteur ÷ (durée en heures) = 42.2 ÷ 1.2
+
+Point d'attention : On observe une baisse du nombre d'événements enregistrés à partir de 2011 (79 événements
+en 2011 contre 125 en 2010). Cela peut indiquer des lacunes dans les enregistrements ou un problème technique
+de l'appareil cette année-là. Ce point sera mentionné comme limite dans le rapport final.
+
+03 Problématique et objectif central
+
+3.1 Le problème de données manquantes
+Pour construire des courbes IDF statistiquement fiables, il faut disposer d'une série d'au moins 30 ans de
+données d'intensité et de durée. Or, le pluviographe ne couvre que 11 ans (2004–2014). Les données
+d'intensité et de durée sont totalement absentes pour la période 1980–2003. C'est le problème central que
+ce projet doit résoudre.
+Source
+
+Période disponible
+
+Ce qui manque
+
+Impact
+
+Pluviomètre
+
+1980–2014 complet
+
+Rien
+
+Aucun
+
+Pluviographe
+
+2004–2014 seulement
+
+Intensité + Durée
+1980–2003
+
+Série trop courte pour les IDF
+fiables
+
+Objectif
+
+1980–2014 complet
+
+À reconstituer par
+modélisation
+
+Série de 35 ans statistiquement
+robuste
+
+3.2 La subtilité fondamentale à comprendre
+Une hauteur journalière identique peut correspondre à des situations hydrologiques très différentes. C'est
+pourquoi la simple division de la hauteur par une durée fixe n'est pas acceptable. Le tableau ci-dessous
+illustre ce point crucial :
+Scénario
+
+Hauteur totale
+
+Durée réelle
+
+Intensité réelle
+
+Dangerosité
+
+Orage violent
+
+40 mm
+
+30 minutes
+
+80 mm/h
+
+Très élevée
+
+Pluie continue
+
+40 mm
+
+10 heures
+
+4 mm/h
+
+Faible
+
+Pluie modérée
+
+40 mm
+
+2 heures
+
+20 mm/h
+
+Modérée
+
+Conclusion : Le pluviomètre voit "40 mm" dans les trois cas. Mais pour les courbes IDF, ces trois situations sont
+radicalement différentes. C'est pour cette raison qu'une méthode rigoureuse de reconstitution des données est
+nécessaire plutôt qu'une simple règle de trois.
+
+04 Pipeline méthodologique du projet
+
+Figure 4 — Les 5 étapes du pipeline méthodologique, de l'exploration des données brutes jusqu'à la construction des
+courbes IDF finales.
+
+Étape 1
+
+Exploration et nettoyage des données
+
+Charger les deux fichiers (pluviomètre et pluviographe), vérifier la structure, détecter les valeurs aberrantes
+ou manquantes, produire des statistiques descriptives et des visualisations de base pour comprendre les
+données.
+
+Étape 2
+
+Préparation et structuration des données
+
+Convertir les données en format tabulaire propre (un événement par ligne). Fusionner les deux sources sur la
+période 2004–2014 pour créer le tableau d'entraînement. Calculer les intensités (mm/h = hauteur ÷ durée en
+heures). Identifier les variables explicatives pertinentes.
+
+Étape 3
+
+Modélisation et désagrégation temporelle
+
+Entraîner un modèle statistique sur la période 2004–2014 pour apprendre la relation entre hauteur journalière
+et (intensité, durée). Valider le modèle par validation croisée. Appliquer le modèle sur 1980–2003 pour
+reconstituer les données manquantes. Méthode principale : régression statistique + Random Forest en
+validation.
+
+Étape 4
+
+Analyse statistique des extrêmes
+
+Extraire les maxima annuels pour chaque durée standard (15 min, 30 min, 1h, 2h, 6h, 24h). Ajuster les lois
+de probabilité : Gumbel (distribution des valeurs extrêmes), GEV (General Extreme Value), log-normale.
+Sélectionner la loi la mieux adaptée par tests statistiques (chi-2, Kolmogorov-Smirnov).
+
+Étape 5
+
+Construction des courbes IDF
+
+Calculer les quantiles d'intensité pour chaque durée et chaque période de retour (2, 5, 10, 20, 50, 100 ans).
+Tracer les courbes IDF. Ajuster une formule analytique de type Montana : I = a / (D + b)c. Valider les courbes
+par comparaison avec des données régionales de référence.
+
+05 Outils techniques et environnement de travail
+
+5.1 Langage et environnement
+Tout le projet sera réalisé en Python 3, dans des Jupyter Notebooks (.ipynb). Ce choix permet de
+combiner le code, les résultats (tableaux, graphiques) et les explications textuelles dans un seul document
+lisible et défendable devant le jury.
+Bibliothèque
+
+Rôle dans le projet
+
+Niveau
+
+pandas
+
+Chargement, nettoyage et manipulation des données tabulaires
+
+Essentiel
+
+numpy
+
+Calculs numériques (moyennes, quantiles, formules statistiques)
+
+Essentiel
+
+matplotlib / seaborn
+
+Visualisation des données et des courbes IDF
+
+Essentiel
+
+scipy.stats
+
+Ajustement des lois de probabilité (Gumbel, GEV, log-normale)
+
+Essentiel
+
+scikit-learn
+
+Modèle de régression et Random Forest pour la désagrégation
+
+Recommandé
+
+openpyxl / xlrd
+
+Lecture et écriture des fichiers Excel (.xlsx, .xls)
+
+Essentiel
+
+statsmodels
+
+Tests statistiques de qualité d'ajustement
+
+Recommandé
+
+5.2 Organisation des fichiers du projet
+projet_idf_kara/
+donnees/
+KARA_PLUIE_JOURNALIERE.xls
+
+fichier source 1
+
+INTENSITES_DE_PLUIE_-KARA.xlsx
+
+fichier source 2
+
+donnees_completes_1980_2014.xlsx
+
+produit par le notebook 03
+
+notebooks/
+01_exploration_donnees.ipynb
+02_preparation_donnees.ipynb
+03_modelisation_disaggregation.ipynb
+04_analyse_statistique.ipynb
+05_courbes_IDF.ipynb
+rapport/
+rapport_final.pdf
+
+06 Résultats attendus et livrables
+
+6.1 Livrables du projet
+Livrable
+
+Description
+
+Format
+
+Jeu de données reconstitué
+
+Intensités et durées sur 1980–2014 (juin–octobre)
+
+Fichier .xlsx
+
+5 Jupyter Notebooks
+
+Code documenté, étape par étape, avec résultats
+
+Fichiers .ipynb
+
+Courbes IDF
+
+Graphiques IDF pour T = 2, 5, 10, 20, 50, 100 ans
+
+Figures .png/.pdf
+
+Formules Montana
+
+Paramètres a, b, c de la formule IDF ajustée
+
+Tableau dans le rapport
+
+Rapport final
+
+Document complet avec méthodologie, résultats,
+interprétations
+
+Fichier .pdf
+
+6.2 Critères de qualité du modèle
+Le modèle de reconstitution sera évalué sur les critères suivants. Ces métriques seront calculées et
+présentées dans le notebook 03 pour justifier la fiabilité des données reconstituées.
+Métrique
+
+Formule / Définition
+
+Valeur cible
+
+R² (coefficient de
+détermination)
+
+Part de variance expliquée par le modèle
+
+> 0,70
+
+MAE (erreur absolue
+moyenne)
+
+Erreur moyenne en mm/h entre prédit et réel
+
+< 5 mm/h
+
+RMSE (racine de l'erreur
+quadratique)
+
+Pénalise davantage les grandes erreurs
+
+< 10 mm/h
+
+Validation croisée K-fold
+
+Test sur données cachées (K=5 plis)
+
+R² stable entre plis
+
+6.3 Hypothèses de travail
+H1 — Le régime pluviométrique de Kara est stationnaire sur la période 1980–2014 (pas de
+changement climatique structurel majeur altérant la relation intensité/durée).
+H2 — La relation entre hauteur journalière et intensité/durée apprise sur 2004–2014 est représentative
+du comportement pluviométrique sur toute la période 1980–2014.
+H3 — Les événements enregistrés par le pluviographe sur juin–octobre couvrent l'essentiel des
+épisodes pluvieux intenses (saison sèche exclue car non pertinente).
+H4 — Les données du pluviomètre sont fiables et exemptes de biais systématiques (vérification par
+analyse de cohérence inter-annuelle).
+
+Note importante pour la soutenance : La présentation explicite de ces hypothèses est une marque de rigueur
+scientifique appréciée des jurys. Elle montre que les étudiants maîtrisent les limites de leur approche et ne
+surestiment pas la portée de leurs résultats.
+
+07 Planning et répartition des tâches
+Phase
+
+Tâches principales
+
+Durée estimée
+
+Priorité
+
+Phase 1
+Exploration
+
+Chargement des fichiers, statistiques descriptives,
+visualisations, documentation des anomalies
+
+3–4 jours
+
+Essentielle
+
+Phase 2
+Préparation
+
+Restructuration en format tabulaire, calcul des
+intensités, fusion des deux sources sur
+2004–2014
+
+3–4 jours
+
+Essentielle
+
+Phase 3
+Modélisation
+
+Entraînement et validation du modèle,
+reconstitution 1980–2003, export du fichier final
+
+5–7 jours
+
+Essentielle
+
+Phase 4
+Statistiques
+
+Extraction maxima, ajustement lois de probabilité,
+tests de qualité d'ajustement
+
+4–5 jours
+
+Essentielle
+
+Phase 5
+Courbes IDF
+
+Calcul des quantiles, tracé des courbes,
+ajustement formule Montana, validation
+
+4–5 jours
+
+Essentielle
+
+Phase 6
+Rédaction
+
+Rapport final, préparation soutenance
+
+5–7 jours
+
+Obligatoire
+
+Cahier de charges — Projet IDF Kara
+
+Licence 3 IA & Big Data | Encadreur : M.
+Kodjo APEKE
+
+Document de référence — Juin 2025
+
+
